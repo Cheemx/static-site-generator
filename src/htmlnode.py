@@ -22,10 +22,12 @@ class LeafNode(HTMLNode):
         super().__init__(tag, value, [], props)
     
     def to_html(self):
-        if not self.value:
-            raise ValueError("value argument is required")
+        if not self.value and self.tag not in {'img', 'br', 'hr'}:
+            raise ValueError(f"LeafNode value is missing: {self}")
         if self.tag == None:
             return self.value
+        if self.tag in {'img', 'br', 'hr'}:
+            return f"<{self.tag}{self.props_to_html()} />"
         html_tag = f"<{self.tag}{super().props_to_html()}>{self.value}</{self.tag}>"
         return html_tag
     

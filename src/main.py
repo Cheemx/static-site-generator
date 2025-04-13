@@ -1,10 +1,12 @@
-from textnode import TextNode
-from textnode import TextType
+import shutil
+
+from static_to_public import static_to_public
 print("hello world")
+from generate_page import generate_page
 
 def main():
-    tn_obj = TextNode("This is some anchor text", TextType.LINK, "https://www.boot.dev")
-    print(tn_obj)
-
+    shutil.rmtree("public")
+    static_to_public("static", "public")
+    generate_page("content/index.md", "template.html", "public/index.html")
 
 main()

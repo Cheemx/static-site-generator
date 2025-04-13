@@ -2,7 +2,7 @@ from markdown_to_blocks import markdown_to_blocks
 from text_to_textnode import text_to_textnodes
 from textnode import text_node_to_html_node
 from blocknode import block_to_block_type, BlockType
-from htmlnode import HTMLNode, ParentNode, LeafNode
+from htmlnode import ParentNode
 
 def markdown_to_html_node(markdown):
     blocks = markdown_to_blocks(markdown)
@@ -43,17 +43,24 @@ def text_to_children(text):
     return node_list
 
 def list_to_list_node(text):
-    lines = text.split('\n')
+    lines = text.split('\n')  # Split the text into lines
     list_nodes = []
     for line in lines:
-        if line.strip():
-            if line.startswith('- '):
-                content = line[2:]
-            elif ' ' in line and line.split(' ', 1)[0].isdigit():
-                content = line.split('. ', 1)[1]
-            else:
-                content = line
+        if line.strip():  # Process non-empty lines only
+            if line.lstrip().startswith('- '):  # Handle unordered list
+                content = line.lstrip()[2:].strip()  # Remove '- ' and extra spaces
+            elif line.lstrip().startswith(tuple(f"{i}. " for i in range(1, 101))):  # Ordered list
+                # Remove the number and trailing ". " (e.g., "1. Gandalf" -> "Gandalf")
+                content = line.lstrip().split('. ', 1)[1].strip()
+            else:  # Fallback for unexpected lines
+                content = line.strip()
+            
+            # Print for debugging:
+            print(f"Processed content: {content}")
+
+            # Create a <li> node for each item and pass to text_to_children
             list_nodes.append(ParentNode("li", text_to_children(content)))
+
     return list_nodes
 
 def block_to_code_node(text):

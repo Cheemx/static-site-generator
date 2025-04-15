@@ -1,10 +1,10 @@
 import os
+import pathlib
 
 from md_to_html import markdown_to_html_node
 from extract_title import extract_title
 
 def generate_page(from_path, template_path, dest_path):
-    print(f"Generating page from {from_path} to {dest_path} using {template_path}")
 
     md_file_obj = open(from_path, mode='r')
     temp_file_obj = open(template_path, 'r')
@@ -25,3 +25,17 @@ def generate_page(from_path, template_path, dest_path):
         os.makedirs(parent_dir)
     with open(dest_path, 'w') as dest_file:
         dest_file.write(new_html)
+
+def generate_pages_recursive(dir_path_content, template_path, dest_dir_path):
+    for entry in os.listdir(dir_path_content):
+        entry_path = os.path.join(dir_path_content, entry)
+
+        if os.path.isfile(entry_path) and entry_path.endswith('.md'):
+            rel_path = os.path.relpath(entry_path, dir_path_content)
+            dest_path = os.path.join(dest_dir_path, rel_path.replace('.md', '.html'))
+            generate_page(entry_path, template_path, dest_path)
+
+        elif os.path.isdir(entry_path):
+            new_dest_dir = os.path.join(dest_dir_path, entry)
+            os.makedirs(new_dest_dir, exist_ok=True)
+            generate_pages_recursive(entry_path, template_path, new_dest_dir)
